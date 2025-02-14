@@ -22,13 +22,13 @@ You should create a new user for connecting to plc by typing following into your
   * PLC:
   * CPU 1214C DC/DC/DC FW: V4.3
   * CPU 1515-2PN FW: V2.6
-  * CPU 1513-1PN FW: V2.9
+  * CPU 1513-1PN FW: V2.9, V3.0.3
   * Short PLC cycletimes (like 1ms) Will work, but you might have problems manually
     setting "query" to TRUE while debugging live in TIA-Portal (Siemens Software Issue)
         
 * SQL Server:
-  * MySql Server: 8.0.26 and 8.0.40
-  * MariaDB Server: 5.5.5 - 10.6.4, 11.2 and 11.5.2
+  * MySql Server: 5.7.44, 8.0.26 and 8.0.40
+  * MariaDB Server: 5.5.5 - 10.6.4, 11.2, 11.5.2, 11.6.2
 
 * Requirements:
   * PLC: S7-1200 or S7-1500
