@@ -29,8 +29,8 @@ VERSION : 0.1
    VAR_OUTPUT 
       status : Word := 16#0000;   // infocode / errorcode
       connected : Bool := FALSE;   // connection established
-      nColumns : DInt := 0;   // number of recieved columns
-      nRows : DInt := 0;   // number of recieved rows
+      nColumns : DInt := 0;   // number of received columns
+      nRows : DInt := 0;   // number of received rows
       resultData : Array[1..#Columns, 0..#Rows] of String[#Stringsize];   // resultdata: ResultData[1,0] = Columnname | ResultData[1,1-X] = Rowdata
    END_VAR
 
@@ -53,7 +53,7 @@ VERSION : 0.1
          extended : "CAPABILITIES_EXT";
          mariadb : "CAPABILITIES_MAR";
       END_STRUCT;
-      recvBuffer : Array[0..#Buffersize] of Byte;   // buffer for recieved data
+      recvBuffer : Array[0..#Buffersize] of Byte;   // buffer for received data
       recvData : Array[0..#Buffersize] of Byte;
       sendBuffer : Array[0..#Buffersize] of Byte;   // buffer for sending data
       Tcon {InstructionName := 'TCON'; LibVersion := '4.0'} : TCON;   // instance TCON
@@ -95,7 +95,7 @@ VERSION : 0.1
             error : Bool := FALSE;
             status : Word := 16#0000;
             packetlength : DInt := 0;
-            recievedlength : DInt;
+            receivedlength : DInt;
          END_STRUCT;
          login : Bool := FALSE;   // login command
          status : Word := 0;   // infocode / errorcode
@@ -103,9 +103,9 @@ VERSION : 0.1
          tcpConnect : Bool := FALSE;   // TCP connect
          tcpConnected : Bool := FALSE;   // TCP connection established
          serverConnected : Bool := FALSE;   // Server connection established
-         recieved : Bool := FALSE;   // new data recieved
+         received : Bool := FALSE;   // new data received
          sent : Bool := FALSE;   // data sent to server
-         recieve : Bool := FALSE;   // recieve data
+         receive : Bool := FALSE;   // receive data
          send : Bool := FALSE;   // send data
          init : Bool := FALSE;   // init flags
       END_STRUCT;
@@ -134,7 +134,7 @@ VERSION : 0.1
          packetinfo : "PACKETINFO";   // packet info
          errorPacket : "ERRORPACKET";   // error packet data
          okPacket : "OKPACKET";   // ok packet data
-         Buffer : Array[0..#Buffersize] of Byte;   // buffer for recieved data
+         Buffer : Array[0..#Buffersize] of Byte;   // buffer for received data
       END_STRUCT;
       column : Struct   // column data
          Info : "COLUMNINFO";   // column info
@@ -157,7 +157,7 @@ VERSION : 0.1
    END_VAR
 
    VAR CONSTANT 
-      Buffersize : Int := 4095;   // size of send and recieve buffer in bytes
+      Buffersize : Int := 4095;   // size of send and receive buffer in bytes
       Columns : Int := 20;   // max number of columns
       Rows : Int := 10;   // max number of rows
       Stringsize : Int := 50;   // max number of chars in resultstrings
@@ -244,10 +244,10 @@ BEGIN
 	            3.    ALTER USER 'your_new_username'@'%' IDENTIFIED BY 'your_new_password';
 	            4.    GRANT ALL PRIVILEGES ON your_databasename.your_tablename TO 'your_new_username'@'%';
 	            5.    FLUSH PRIVILEGES;  
-	W#16#0020:  Wrong packet type recieved after login request, expectet OK or ERROR
-	W#16#0021:  Recieved LOCALINFILE packet, but it is not implemented
+	W#16#0020:  Wrong packet type received after login request, expectet OK or ERROR
+	W#16#0021:  Received LOCALINFILE packet, but it is not implemented
 	W#16#0023:  Number of colums in result data is greater than the set value number of columns, adjust the constant "Columns"
-	W#16#0024:  Number of recieved bytes is greater than the set value number of bytes, adjust the constant "Buffersize"
+	W#16#0024:  Number of received bytes is greater than the set value number of bytes, adjust the constant "Buffersize"
 	W#16#0025:  Number of rows in result data is greater than the set value number of rows, adjust the constant "Rows"
 	--------------------------------------------------------------------------------------------------------
 	Server status:
@@ -516,14 +516,14 @@ BEGIN
 	        #state.sent := True;
 	    END_IF;
 	END_REGION
-	REGION TCP recieve
-	    IF NOT #state.recieve THEN
+	REGION TCP receive
+	    IF NOT #state.receive THEN
 	        #state.Trecv.packetlength := 0;
-	        #state.Trecv.recievedlength := 0;
+	        #state.Trecv.receivedlength := 0;
 	    END_IF;
 	    
-	    // recieve data over tcp
-	    #Trecv(EN_R := #state.recieve,
+	    // receive data over tcp
+	    #Trecv(EN_R := #state.receive,
 	           ID := #tcpInfo.ID,
 	           LEN := 0,
 	           ADHOC := True,
@@ -535,21 +535,21 @@ BEGIN
 	           DATA := #recvData);
 	    
 	    IF #state.Trecv.newdata THEN
-	        #retval."int" := MOVE_BLK_VARIANT(SRC := #recvData, COUNT := #state.Trecv.length, SRC_INDEX := 0, DEST_INDEX := #state.Trecv.recievedlength, DEST => #recvBuffer);
-	        #state.Trecv.recievedlength := #state.Trecv.recievedlength + UDINT_TO_DINT(IN:=#state.Trecv.length);
+	        #retval."int" := MOVE_BLK_VARIANT(SRC := #recvData, COUNT := #state.Trecv.length, SRC_INDEX := 0, DEST_INDEX := #state.Trecv.receivedlength, DEST => #recvBuffer);
+	        #state.Trecv.receivedlength := #state.Trecv.receivedlength + UDINT_TO_DINT(IN:=#state.Trecv.length);
 	        #recvData := #empty.Buffer;
 	    END_IF;
 	    
-	    // first 4 bytes of a recieved packet is header (3 bytes packet length, 1 byte sequence number)
-	    // if more than 3 bytes are recieved -> read header -> get packet length -> keep Trecv recieving until packet length + 4 (header) recieved
-	    IF #state.Trecv.recievedlength >= 3 THEN
+	    // first 4 bytes of a received packet is header (3 bytes packet length, 1 byte sequence number)
+	    // if more than 3 bytes are received -> read header -> get packet length -> keep Trecv recieving until packet length + 4 (header) received
+	    IF #state.Trecv.receivedlength >= 3 THEN
 	        #counter := 0;
 	        // read packet size
 	        "READ_FIXED_LENGTH_INT"(error => #retval."bool", data := #recvBuffer, start := #counter, bytes := 3, Dinteger => #state.Trecv.packetlength);
 	        #state.Trecv.packetlength := #state.Trecv.packetlength + 4;
-	        // new data completely recieved
-	        IF #state.Trecv.recievedlength >= #state.Trecv.packetlength THEN
-	            #state.recieved := True;
+	        // new data completely received
+	        IF #state.Trecv.receivedlength >= #state.Trecv.packetlength THEN
+	            #state.received := True;
 	        END_IF;
 	    END_IF;
 	END_REGION
@@ -584,11 +584,11 @@ BEGIN
 	    // init flags
 	    IF #state.init THEN
 	        #state.init := False;
-	        #state.recieved := False;
+	        #state.received := False;
 	        #state.sent := False;
 	        #state.tcpConnect := False;
 	        #state.serverConnected := False;
-	        #state.recieve := False;
+	        #state.receive := False;
 	        #state.send := False;
 	        #ping := False;
 	        #query := False;
@@ -610,7 +610,7 @@ BEGIN
 	                IF #state.tcpConnected THEN
 	                    #state.login := True;
 	                    #state.step := 2;
-	                    // delete recieve buffer
+	                    // delete receive buffer
 	                    #recvBuffer := #empty.Buffer;
 	                END_IF;
 	            END_REGION
@@ -638,12 +638,12 @@ BEGIN
 	                END_IF;
 	            END_REGION
 	        010: // --> JUMP to 011
-	            REGION Recieve server greeting
+	            REGION Receive server greeting
 	                // start recieving
-	                #state.recieve := True;
-	                IF #state.recieved THEN
-	                    #state.recieve := False;
-	                    #state.recieved := False;
+	                #state.receive := True;
+	                IF #state.received THEN
+	                    #state.receive := False;
+	                    #state.received := False;
 	                    #state.step := 11;
 	                END_IF;
 	            END_REGION
@@ -967,17 +967,17 @@ BEGIN
 	                    #state.send := False;
 	                    #state.sent := False;
 	                    #state.step := 51;
-	                    // delete recieve buffer
+	                    // delete receive buffer
 	                    #recvBuffer := #empty.Buffer;
 	                END_IF;
 	            END_REGION
 	        051: // --> JUMP to 052
-	            REGION Recieve server answer
+	            REGION Receive server answer
 	                // start recieving
-	                #state.recieve := True;
-	                IF #state.recieved THEN
-	                    #state.recieve := False;
-	                    #state.recieved := False;
+	                #state.receive := True;
+	                IF #state.received THEN
+	                    #state.receive := False;
+	                    #state.received := False;
 	                    #state.step := 52;
 	                END_IF;
 	            END_REGION
@@ -992,9 +992,9 @@ BEGIN
 	                #counter := 0;
 	                // read packet size
 	                "READ_FIXED_LENGTH_INT"(error => #retval."bool", data := #recvBuffer, start := #counter, bytes := 3, Dinteger => #packetInfo.LENGTH);
-	                // check if number of recieved bytes is to much
-	                IF #state.Trecv.recievedlength >= #Buffersize THEN
-	                    // number of recieved bytes is greater than the set value number of bytes, adjust the constant "Buffersize"
+	                // check if number of received bytes is to much
+	                IF #state.Trecv.receivedlength >= #Buffersize THEN
+	                    // number of received bytes is greater than the set value number of bytes, adjust the constant "Buffersize"
 	                    #state.status := W#16#0024;
 	                END_IF;
 	                // read packet number
