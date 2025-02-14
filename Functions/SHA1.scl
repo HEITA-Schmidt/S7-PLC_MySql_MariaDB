@@ -270,7 +270,7 @@ BEGIN
 	    // H1 = 16#CC_B1_9B_A6
 	    // H2 = 16#1C_4C_08_73
 	    // H3 = 16#D3_91_E9_87
-	    // H4= 16#98_2F_BB_D3
+	    // H4 = 16#98_2F_BB_D3
 	    // digest = '©J$8FåÌ±›¦$1CL$08sÓ‘é‡˜/»Ó'
 	    // len(digest) = 20 bytes just the special chars destroy the readable live value
 	    
@@ -307,7 +307,7 @@ BEGIN
 	    // H1 = 16#CCB1_9BA6
 	    // H2 = 16#1C4C_0873
 	    // H3 = 16#D391_E987
-	    // H4= 16#982F_BBD3
+	    // H4 = 16#982F_BBD3
 	    // hexdigest = a94a8fe5ccb19ba61c4c0873d391e987982fbbd3
 	    
 	    // turn H1 - H4 in a Hexadecimal String
@@ -315,12 +315,12 @@ BEGIN
 	    // H1 = 16#CCB1_9BA6
 	    // H2 = 16#1C4C_0873
 	    // H3 = 16#D391_E987
-	    // H4= 16#982F_BBD3
+	    // H4 = 16#982F_BBD3
 	    // H0 = 'A94A8FE5'
 	    // H1 = 'CCB19BA6'
 	    // H2 = '1C4C0873'
 	    // H3 = 'D391E987'
-	    // H4= '982FBBD3'
+	    // H4 = '982FBBD3'
 	    #retval := HTA(IN := #H0, N := 4, OUT => #HH[0]);
 	    #retval := HTA(IN := #H1, N := 4, OUT => #HH[1]);
 	    #retval := HTA(IN := #H2, N := 4, OUT => #HH[2]);
